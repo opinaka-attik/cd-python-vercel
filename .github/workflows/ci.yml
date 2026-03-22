@@ -1,0 +1,24 @@
+name: CI - Tests Python
+
+on:
+  pull_request:
+    branches: [ main, develop ]   # ← surveille les deux branches
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Récupération du code
+        uses: actions/checkout@v4
+
+      - name: Installation Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Installation des dépendances
+        run: pip install -r requirements.txt
+
+      - name: Lancement des tests
+        run: pytest --cov=api --cov-report=term-missing --cov-fail-under=80

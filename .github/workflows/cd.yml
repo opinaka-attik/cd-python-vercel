@@ -1,0 +1,69 @@
+name: CD - Déploiement automatique Vercel
+
+on:
+  push:
+    branches:
+      - develop   # → déploie sur STAGING
+      - main      # → déploie sur PRODUCTION
+
+jobs:
+
+  # ─────────────────────────────────────────
+  # JOB 1 : Déploiement STAGING
+  # Déclenché uniquement sur la branche develop
+  # ─────────────────────────────────────────
+  deploy-staging:
+    name: 🚧 Déploiement Staging
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/develop'
+
+    environment:
+      name: staging
+      url: ${{ steps.deploy.outputs.url }}
+
+    steps:
+      - name: Récupération du code
+        uses: actions/checkout@v4
+
+      - name: Installation de Vercel CLI
+        run: npm install -g vercel
+
+      - name: Déploiement sur Staging (preview)
+        id: deploy
+        run: |
+          url=$(vercel deploy \
+            --token=${{ secrets.VERCEL_TOKEN }} \
+            --env APP_ENV=staging)
+          echo "url=$url" >> $GITHUB_OUTPUT
+
+      - name: Affichage de l'URL de staging
+        run: echo "✅ Staging disponible → ${{ steps.deploy.outputs.url }}"
+
+  # ─────────────────────────────────────────
+  # JOB 2 : Déploiement PRODUCTION
+  # Déclenché uniquement sur la branche main
+  # ─────────────────────────────────────────
+  deploy-production:
+    name: 🚀 Déploiement Production
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    environment:
+      name: production
+      url: https://cd-python-vercel.vercel.app
+
+    steps:
+      - name: Récupération du code
+        uses: actions/checkout@v4
+
+      - name: Installation de Vercel CLI
+        run: npm install -g vercel
+
+      - name: Déploiement en Production
+        run: |
+          vercel deploy --prod \
+            --token=${{ secrets.VERCEL_TOKEN }} \
+            --env APP_ENV=production
+        
+      - name: Confirmation de déploiement
+        run: echo "🎉 Production mise à jour avec succès !"
