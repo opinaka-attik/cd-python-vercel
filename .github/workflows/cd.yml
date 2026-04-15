@@ -33,7 +33,8 @@ jobs:
         run: |
           url=$(vercel deploy \
             --token=${{ secrets.VERCEL_TOKEN }} \
-            --env APP_ENV=staging)
+            --env APP_ENV=staging \
+            --yes)
           echo "url=$url" >> $GITHUB_OUTPUT
 
       - name: Affichage de l'URL de staging
@@ -63,7 +64,8 @@ jobs:
         run: |
           vercel deploy --prod \
             --token=${{ secrets.VERCEL_TOKEN }} \
-            --env APP_ENV=production
-        
+            --env APP_ENV=production \
+            --yes
+
       - name: Confirmation de déploiement
         run: echo "🎉 Production mise à jour avec succès !"
